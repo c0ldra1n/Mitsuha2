@@ -1,6 +1,8 @@
 
 include $(THEOS)/makefiles/common.mk
 
+ARCHS = arm64
+TARGET = iphone:clang:10.0:10.0
 GO_EASY_ON_ME=1
 
 TWEAK_NAME = Mitsuha2

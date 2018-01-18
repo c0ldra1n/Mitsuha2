@@ -291,13 +291,13 @@ static CGPoint controlPointForPoints(CGPoint p1, CGPoint p2) {
             for (int i = 0; i < self.config.numberOfPoints; i++){
                 
                 self.points[i].x = i*pixelFixer;
-                self.points[i].y = self.bounds.size.height/2;
+                self.points[i].y = self.config.waveOffset; //self.bounds.size.height/2;
                 
             }
             
             self.points[self.config.numberOfPoints - 1].x = self.bounds.size.width;
             
-            self.points[0].y = self.points[self.config.numberOfPoints - 1].y = self.bounds.size.height/2;
+            self.points[0].y = self.points[self.config.numberOfPoints - 1].y = self.config.waveOffset; //self.bounds.size.height/2;
             
         }
         
@@ -346,14 +346,14 @@ static CGPoint controlPointForPoints(CGPoint p1, CGPoint p2) {
             pureValue = (fabs(pureValue) < self.config.limiter ? pureValue : (pureValue < 0 ? -1*self.config.limiter : self.config.limiter));
         }
         
-        self.points[i].y = pureValue + self.bounds.size.height/2;
+        self.points[i].y = pureValue + self.config.waveOffset;// + self.bounds.size.height/2;
     }
     
 #endif
     
     self.points[self.config.numberOfPoints - 1].x = self.bounds.size.width;
     
-    self.points[0].y = self.points[self.config.numberOfPoints - 1].y = self.bounds.size.height/2;
+    self.points[0].y = self.points[self.config.numberOfPoints - 1].y = self.config.waveOffset; //self.bounds.size.height/2;
     
     if(!self.config.enableDisplayLink){
         //  Do the animation here
