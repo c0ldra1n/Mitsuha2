@@ -235,10 +235,20 @@ static AVMutableAudioMix *audioMix;
         float *data = (float *)(*p_bufferlist).mBuffers[0].mData;
         
         if(data != NULL){
-            
             int dataByteSize = (*p_bufferlist).mBuffers[0].mDataByteSize;
-            
-            [self.mitsuhaJelloView updateBuffer:data withLength:dataByteSize/sizeof(float)];
+            /*if (dataByteSize != 15116) {
+                NSLog(@"[Mitsuha]: dataByteSize = %d", dataByteSize);
+            }*/
+
+            //Sometimes it's 20496, which is correct so I'll leave this like that:
+            if (dataByteSize > 10000 && dataByteSize < 40000 && dataByteSize % sizeof(float) == 0) {
+            //if (dataByteSize == 15116) {
+                [self.mitsuhaJelloView updateBuffer:data withLength:dataByteSize/sizeof(float)];
+            } else {
+                data = (float *)malloc(sizeof(float));
+                data[0] = 0.0f;
+                [self.mitsuhaJelloView updateBuffer:data withLength:1];
+            }
         }
         
     }
