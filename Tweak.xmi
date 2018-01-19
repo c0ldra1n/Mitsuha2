@@ -150,16 +150,16 @@ static AVMutableAudioMix *audioMix;
     callbacks.unprepare = unprepare;
     callbacks.finalize = finalize;
     
-    MTAudioProcessingTapRef tap;
+    static MTAudioProcessingTapRef tap;
     
-    //if(tap == NULL){
+    if(tap == NULL) {
         OSStatus err = MTAudioProcessingTapCreate(kCFAllocatorDefault, &callbacks,
                                                   kMTAudioProcessingTapCreationFlag_PostEffects, &tap);
         if (err || !tap) {
             NSLog(@"[Mitsuha]: Unable to create the Audio Processing Tap");
             return;
         }
-    //}
+    }
     
     // Assign the tap to the input parameters
     inputParams.audioTapProcessor = tap;
