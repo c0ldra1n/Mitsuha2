@@ -241,8 +241,11 @@ static AVMutableAudioMix *audioMix;
             }*/
 
             //Sometimes it's 20496, which is correct so I'll leave this like that:
-            if (dataByteSize > 10000 && dataByteSize < 40000 && dataByteSize % sizeof(float) == 0) {
-            //if (dataByteSize == 15116) {
+            //if (dataByteSize > 10000 && dataByteSize < 40000 && dataByteSize % sizeof(float) == 0) {
+
+            //Let's assume it's always 15116, seems to be much safer.
+            //If the visualizer appears to be not responding to audio, then this is the culprit.
+            if (dataByteSize == 15116) {
                 [self.mitsuhaJelloView updateBuffer:data withLength:dataByteSize/sizeof(float)];
             } else {
                 data = (float *)malloc(sizeof(float));
