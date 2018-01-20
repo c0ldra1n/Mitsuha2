@@ -8,9 +8,9 @@
 
 #import <Foundation/Foundation.h>
 
-#define MSHColorFlowInstalled [GET_CLASS(CFWPrefsManager) class]
-#define MSHColorFlowMusicEnabled MSHookIvar<BOOL>([GET_CLASS(CFWPrefsManager) sharedInstance], "_musicEnabled")
-#define MSHColorFlowSpotifyEnabled MSHookIvar<BOOL>([GET_CLASS(CFWPrefsManager) sharedInstance], "_spotifyEnabled")
-#define MSHCustomCoverInstalled [GET_CLASS(CustomCoverAPI) class]
+#define MSHColorFlowInstalled [%c(CFWPrefsManager) class]
+#define MSHColorFlowMusicEnabled MSHookIvar<BOOL>([%c(CFWPrefsManager) sharedInstance], "_musicEnabled")
+#define MSHColorFlowSpotifyEnabled MSHookIvar<BOOL>([%c(CFWPrefsManager) sharedInstance], "_spotifyEnabled")
+#define MSHCustomCoverInstalled [%c(CustomCoverAPI) class]
 #define MSHPreferencesDirectory @"/var/mobile/Library/Preferences/io.c0ldra1n.mitsuha-prefs.plist"
 #define MSHDatastreamPath @"/Library/Application\ Support/Mitsuha/io.c0ldra1n.mitsuha.datastream"

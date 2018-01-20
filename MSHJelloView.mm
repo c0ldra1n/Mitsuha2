@@ -88,27 +88,27 @@ static CGPoint controlPointForPoints(CGPoint p1, CGPoint p2) {
     }
     
     if ([name isEqualToString:@"Music"]) {
-        prefs[@"waveColor"] = [prefs objectForKey:@"waveColor"] ?: [UIColor colorWithWhite:1.0 alpha:0.5];
-        prefs[@"subwaveColor"] = [prefs objectForKey:@"subwaveColor"] ?: [UIColor colorWithWhite:1.0 alpha:0.5];
+        prefs[@"waveColor"] = [prefs objectForKey:@"waveColor"] ?: [UIColor colorWithRed:0.99 green:0.19 blue:0.35 alpha:0.1];
+        prefs[@"subwaveColor"] = [prefs objectForKey:@"subwaveColor"] ?: [UIColor colorWithRed:0.99 green:0.19 blue:0.35 alpha:0.1];
         
         if ([(prefs[@"useDefaultColors"] ?: @(NO)) boolValue]) {
-            prefs[@"waveColor"] = [UIColor colorWithWhite:1.0 alpha:0.5];
-            prefs[@"subwaveColor"] = [UIColor colorWithWhite:1.0 alpha:0.5];
+            prefs[@"waveColor"] = [UIColor colorWithRed:0.99 green:0.19 blue:0.35 alpha:0.1];
+            prefs[@"subwaveColor"] = [UIColor colorWithRed:0.99 green:0.19 blue:0.35 alpha:0.1];
         }
         
         prefs[@"waveOffset"] = ([prefs objectForKey:@"waveOffset"] ?: @(0));
     }
     
     if([name isEqualToString:@"Spotify"]){
-        prefs[@"waveColor"] = [prefs objectForKey:@"waveColor"] ?: [UIColor colorWithWhite:0.0 alpha:0.5];
-        prefs[@"subwaveColor"] = [prefs objectForKey:@"subwaveColor"] ?: [UIColor colorWithWhite:0.0 alpha:0.5];
+        prefs[@"waveColor"] = [prefs objectForKey:@"waveColor"] ?: [UIColor colorWithRed:0.99 green:0.99 blue:0.99 alpha:0.2];
+        prefs[@"subwaveColor"] = [prefs objectForKey:@"subwaveColor"] ?: [UIColor colorWithRed:0.99 green:0.99 blue:0.99 alpha:0.2];
         
         if ([(prefs[@"useDefaultColors"] ?: @(NO)) boolValue]) {
-            prefs[@"waveColor"] = [UIColor colorWithWhite:0.0 alpha:0.5];
-            prefs[@"subwaveColor"] = [UIColor colorWithWhite:0.0 alpha:0.5];
+            prefs[@"waveColor"] = [UIColor colorWithRed:0.99 green:0.99 blue:0.99 alpha:0.2];
+            prefs[@"subwaveColor"] = [UIColor colorWithRed:0.99 green:0.99 blue:0.99 alpha:0.2];
         }
         
-        prefs[@"waveOffset"] = ([prefs objectForKey:@"waveOffset"] ?: @(100));
+        prefs[@"waveOffset"] = ([prefs objectForKey:@"waveOffset"] ?: @(0));
     }
     
     return [[MSHJelloViewConfig alloc] initWithDictionary:prefs];

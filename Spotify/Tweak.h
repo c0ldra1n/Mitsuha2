@@ -14,8 +14,6 @@
 #import <substrate.h>
 #import "../MSHUtils.h"
 #import "../MSHJelloView.h"
-#import <xctheos.h>
-
 
 @interface SPTImageBlurView : UIView
 

@@ -175,10 +175,7 @@ static AVMutableAudioMix *audioMix;
     self.displayLink = [CADisplayLink displayLinkWithTarget:self selector:@selector(updateFrame:)];
     
     MSHJelloViewConfig *config = [MSHJelloViewConfig loadConfigForApplication:@"Music"];
-    config.waveColor = [UIColor colorWithRed:0.99 green:0.19 blue:0.35 alpha:0.1];
-    config.subwaveColor = [UIColor colorWithRed:0.99 green:0.19 blue:0.35 alpha:0.1];
-    config.waveOffset = 150;
-    config.limiter = 60;
+    config.waveOffset += 150;
     float offset = config.waveOffset;
     CGFloat height = CGRectGetHeight(self.view.bounds)/2 + 5;
     

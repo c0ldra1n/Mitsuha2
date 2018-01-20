@@ -31,10 +31,7 @@ OSStatus hooked_AudioUnitRender(AudioUnit inUnit, AudioUnitRenderActionFlags *io
     
     currentBackgroundMusicVC = self;
     MSHJelloViewConfig *config = [MSHJelloViewConfig loadConfigForApplication:@"Spotify"];
-    config.waveColor = [UIColor colorWithRed:0.99 green:0.99 blue:0.99 alpha:0.2];
-    config.subwaveColor = [UIColor colorWithRed:0.99 green:0.99 blue:0.99 alpha:0.2];
-    config.waveOffset = 250;
-    config.limiter = 30;
+    config.waveOffset += 250;
     float offset = config.waveOffset;
     CGFloat height = CGRectGetHeight(self.view.bounds) - offset;
     
@@ -68,7 +65,7 @@ OSStatus hooked_AudioUnitRender(AudioUnit inUnit, AudioUnitRenderActionFlags *io
     
     //  Copied from NowPlayingImpl
     if(MSHColorFlowInstalled && MSHColorFlowSpotifyEnabled){
-        CFWSpotifyStateManager *stateManager = [GET_CLASS(CFWSpotifyStateManager) sharedManager];
+        CFWSpotifyStateManager *stateManager = [%c(CFWSpotifyStateManager) sharedManager];
         UIColor *backgroundColor = [stateManager.mainColorInfo.backgroundColor colorWithAlphaComponent:0.5];
         [currentBackgroundMusicVC.mitsuhaJelloView updateWaveColor:backgroundColor subwaveColor:backgroundColor];
         [currentBackgroundMusicVC.backgroundView.backgroundImageBlurView updateGradientDark:stateManager.mainColorInfo.backgroundDark];
@@ -271,7 +268,7 @@ static CGFloat originalCenterY = 0;
 -(void)applyColorChange{
     if(MSHColorFlowInstalled && MSHColorFlowSpotifyEnabled){
         if(!currentBackgroundMusicVC.mitsuhaJelloView.config.ignoreColorFlow){
-            CFWColorInfo *colorInfo = [[GET_CLASS(CFWSpotifyStateManager) sharedManager] mainColorInfo];
+            CFWColorInfo *colorInfo = [[%c(CFWSpotifyStateManager) sharedManager] mainColorInfo];
             UIColor *backgroundColor = [[colorInfo backgroundColor] colorWithAlphaComponent:0.5];
             
             dispatch_async(dispatch_get_main_queue(), ^{
