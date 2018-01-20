@@ -5,7 +5,6 @@
 //
 //
 
-#import <xctheos.h>
 #import "Tweak.h"
 
 static AudioBufferList *p_bufferlist;

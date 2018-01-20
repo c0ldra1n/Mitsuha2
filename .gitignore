@@ -1,4 +1,4 @@
 /.theos
-/obj
+obj
 .DS_Store
 /*.xcodeproj
