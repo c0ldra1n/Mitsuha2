@@ -9,7 +9,7 @@
 #import <UIKit/UIKit.h>
 #import <MediaPlayer/MediaPlayer.h>
 #import <AVFoundation/AVFoundation.h>
-#import "MSHJelloView.h"
+#import "../MSHJelloView.h"
 
 @interface MPQueuePlayer : NSObject
 
