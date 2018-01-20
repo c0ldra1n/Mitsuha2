@@ -5,7 +5,7 @@ ARCHS = arm64
 TARGET = iphone:10.2:10.2
 GO_EASY_ON_ME=1
 
-SUBPROJECTS += Music
+SUBPROJECTS += Music Spotify
 
 include $(THEOS_MAKE_PATH)/aggregate.mk
 
