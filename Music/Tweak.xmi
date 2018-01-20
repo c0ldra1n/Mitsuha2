@@ -47,13 +47,11 @@ void process(MTAudioProcessingTapRef tap, CMItemCount numberFrames,
         NSLog(@"[Mitsuha]: Switching Buffer!(%p->%p)", p_bufferlist, bufferListInOut);
         p_bufferlist = bufferListInOut;
     }
-    
 }
 
 
 
 UIColor * colorWithMinimumSaturation(UIColor *self, double saturation){
-    
     if (!self)
         return nil;
     
@@ -64,13 +62,11 @@ UIColor * colorWithMinimumSaturation(UIColor *self, double saturation){
         return [UIColor colorWithHue:h saturation:saturation brightness:b alpha:a];
     
     return self;
-    
 }
 
 
 
 UIColor * averageColor(UIImage *image, double alpha){
-    
     //Work within the RGB colorspoace
     CGColorSpaceRef colorSpace = CGColorSpaceCreateDeviceRGB();
     unsigned char rgba[4];
@@ -83,10 +79,8 @@ UIColor * averageColor(UIImage *image, double alpha){
     
     //Check if image alpha is 0
     if (rgba[3] == 0) {
-        
         CGFloat imageAlpha = ((CGFloat)rgba[3])/255.0;
         CGFloat multiplier = imageAlpha/255.0;
-        
         UIColor *averageColor = [UIColor colorWithRed:((CGFloat)rgba[0])*multiplier green:((CGFloat)rgba[1])*multiplier blue:((CGFloat)rgba[2])*multiplier alpha:imageAlpha];
         
         //Improve color
@@ -94,10 +88,7 @@ UIColor * averageColor(UIImage *image, double alpha){
         
         //Return average color
         return averageColor;
-    }
-    
-    else {
-        
+    } else {
         //Get average
         UIColor *averageColor = [UIColor colorWithRed:((CGFloat)rgba[0])/255.0 green:((CGFloat)rgba[1])/255.0 blue:((CGFloat)rgba[2])/255.0 alpha:alpha];
         
@@ -128,7 +119,6 @@ static AVMutableAudioMix *audioMix;
 
 %new
 -(void)configureMitsuhaFilter{
-    
     NSLog(@"[Mitsuha]: Configuring Mitsuha Filter...");
     
     MPQueuePlayer *queuePlayer = self.avPlayer;
@@ -140,8 +130,7 @@ static AVMutableAudioMix *audioMix;
     }
     
     AVMutableAudioMixInputParameters *inputParams = [AVMutableAudioMixInputParameters audioMixInputParametersWithTrack:queuePlayer.currentItem.tracks.firstObject.assetTrack];
-    
-    
+
     MTAudioProcessingTapCallbacks callbacks;
     callbacks.version = kMTAudioProcessingTapCallbacksVersion_0;
     callbacks.init = init;
@@ -165,15 +154,11 @@ static AVMutableAudioMix *audioMix;
     inputParams.audioTapProcessor = tap;
     
     // Create a new AVAudioMix and assign it to our AVPlayerItem
-    
     audioMix = [AVMutableAudioMix audioMix];
-    
     audioMix.inputParameters = @[inputParams];
-    
     queuePlayer.currentItem.audioMix = audioMix;
-    
+
     NSLog(@"[Mitsuha]: audioMix %@", audioMix);
-    
 }
 
 %end
@@ -201,37 +186,28 @@ static AVMutableAudioMix *audioMix;
     
     [self.view addSubview:self.mitsuhaJelloView];
     [self.view sendSubviewToBack:self.mitsuhaJelloView];
-    
-    
 }
 
 -(void)viewWillAppear:(BOOL)animated{
-    
     %orig;
-    
     self.mitsuhaJelloView.center = CGPointMake(self.mitsuhaJelloView.center.x, self.mitsuhaJelloView.frame.size.height + self.mitsuhaJelloView.config.waveOffset);
 }
 
 -(void)viewDidAppear:(BOOL)animated{
     %orig;
-    
     [self.displayLink addToRunLoop:[NSRunLoop currentRunLoop] forMode:NSDefaultRunLoopMode];
     [self.displayLink setPaused:false];
-    
 }
 
 -(void)viewWillDisappear:(BOOL)animated{
     %orig;
-    
     [self.displayLink setPaused:YES];
     [self.displayLink removeFromRunLoop:[NSRunLoop currentRunLoop] forMode:NSDefaultRunLoopMode];
 }
 
 %new
 -(void)updateFrame:(CADisplayLink *)dlink{
-    
     if(p_bufferlist != NULL){
-        
         float *data = (float *)(*p_bufferlist).mBuffers[0].mData;
         
         if(data != NULL){
@@ -253,11 +229,7 @@ static AVMutableAudioMix *audioMix;
                 [self.mitsuhaJelloView updateBuffer:data withLength:1];
             }
         }
-        
     }
-    
-    
-    
 }
 
 %new
@@ -280,7 +252,6 @@ static AVMutableAudioMix *audioMix;
     return objc_getAssociatedObject(self, @selector(displayLink));
 }
 
-
 %end
 
 %end
@@ -289,5 +260,4 @@ static AVMutableAudioMix *audioMix;
     %init(MitsuhaInternals);
     //    INIT(MitsuhaVisuals, MusicNowPlayingControlsViewController = NSClassFromString(@"Music.NowPlayingControlsViewController"));
     %init(MitsuhaVisuals);
-    
 }

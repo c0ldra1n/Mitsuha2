@@ -1,5 +1,7 @@
 include $(THEOS)/makefiles/common.mk
 
+ARCHS = arm64
+TARGET = iphone:10.2:10.2
 TWEAK_NAME = MitsuhaXISpotify
 $(TWEAK_NAME)_FILES = Tweak.xmi $(wildcard ../MSH*.*m*)
 
