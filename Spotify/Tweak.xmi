@@ -4,7 +4,7 @@
 static SPTNowPlayingBackgroundMusicViewController *currentBackgroundMusicVC;
 static BOOL shouldUpdate = true;
 UIColor *const kTrans = [[UIColor whiteColor] colorWithAlphaComponent:0.5];
-dispatch_queue_t SPQUEUE = dispatch_queue_create("io.c0ldra1n.mitsuha.spotify.queue", nil);
+dispatch_queue_t SPQUEUE = dispatch_queue_create("io.c0ldra1n.mitsuhaxi.spotify.queue", nil);
 
 OSStatus (*orig_AudioUnitRender)(AudioUnit inUnit, AudioUnitRenderActionFlags *ioActionFlags, const AudioTimeStamp *inTimeStamp, UInt32 inOutputBusNumber, UInt32 inNumberFrames, AudioBufferList *ioData);
 
@@ -201,6 +201,7 @@ OSStatus hooked_AudioUnitRender(AudioUnit inUnit, AudioUnitRenderActionFlags *io
 
 %end
 
+/* Not really neccessary.
 %hook SPTNowPlayingCarouselAreaViewController
 
 static CGFloat originalCenterY = 0;
@@ -250,7 +251,7 @@ static CGFloat originalCenterY = 0;
     } completion:nil];
 }
 
-%end
+%end*/
 
 %hook SPTNowPlayingModel
 
