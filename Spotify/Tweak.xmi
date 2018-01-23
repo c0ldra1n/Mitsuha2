@@ -112,17 +112,11 @@ OSStatus hooked_AudioUnitRender(AudioUnit inUnit, AudioUnitRenderActionFlags *io
 }
 
 %end
-
+/*
 %hook SPTNowPlayingCoverArtViewCell
 
 -(CGSize)cellSize{
-    
-#ifdef THEOSBUILD   //  Shut up Xcode
     CGSize original = %orig;
-#else
-    CGSize original;
-#endif
-    
     return CGSizeMake(original.width * 0.8, original.height * 0.8);
 }
 
@@ -137,6 +131,7 @@ OSStatus hooked_AudioUnitRender(AudioUnit inUnit, AudioUnitRenderActionFlags *io
 }
 
 %end
+*/
 
 %hook SPTImageBlurView
 
@@ -201,7 +196,6 @@ OSStatus hooked_AudioUnitRender(AudioUnit inUnit, AudioUnitRenderActionFlags *io
 
 %end
 
-/* Not really neccessary.
 %hook SPTNowPlayingCarouselAreaViewController
 
 static CGFloat originalCenterY = 0;
@@ -251,7 +245,7 @@ static CGFloat originalCenterY = 0;
     } completion:nil];
 }
 
-%end*/
+%end
 
 %hook SPTNowPlayingModel
 
@@ -295,7 +289,6 @@ static BOOL registered;
                                                      name: UIApplicationDidBecomeActiveNotification
                                                    object: nil];
         registered = true;
-        
     }
     
     %orig;
