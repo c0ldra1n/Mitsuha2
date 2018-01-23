@@ -204,26 +204,21 @@ static AVMutableAudioMix *audioMix;
 %new
 -(void)updateFrame:(CADisplayLink *)dlink{
     if(p_bufferlist != NULL){
-        float *data = (float *)(*p_bufferlist).mBuffers[0].mData;
+        int numberBuffers = (*p_bufferlist).mNumberBuffers;
+
+        float *data;
+        int dataByteSize = sizeof(float);
         
+        if (numberBuffers == 2) {
+            data = (float *)(*p_bufferlist).mBuffers[0].mData;
+            dataByteSize = (*p_bufferlist).mBuffers[0].mDataByteSize;
+        } else {
+            data = (float *)malloc(sizeof(float));
+            data[0] = 0.0f;
+        }
+
         if(data != NULL){
-            int dataByteSize = (*p_bufferlist).mBuffers[0].mDataByteSize;
-            /*if (dataByteSize != 15116) {
-                NSLog(@"[Mitsuha]: dataByteSize = %d", dataByteSize);
-            }*/
-
-            //Sometimes it's 20496, which is correct so I'll leave this like that:
-            //if (dataByteSize > 10000 && dataByteSize < 40000 && dataByteSize % sizeof(float) == 0) {
-
-            //Let's assume it's always 15116, seems to be much safer.
-            //If the visualizer appears to be not responding to audio, then this is the culprit.
-            if (dataByteSize == 15116) {
-                [self.mitsuhaJelloView updateBuffer:data withLength:dataByteSize/sizeof(float)];
-            } else {
-                data = (float *)malloc(sizeof(float));
-                data[0] = 0.0f;
-                [self.mitsuhaJelloView updateBuffer:data withLength:1];
-            }
+            [self.mitsuhaJelloView updateBuffer:data withLength:dataByteSize/sizeof(float)];
         }
     }
 }
