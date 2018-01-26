@@ -205,21 +205,28 @@ static AVMutableAudioMix *audioMix;
 -(void)updateFrame:(CADisplayLink *)dlink{
     if(p_bufferlist != NULL){
         int numberBuffers = (*p_bufferlist).mNumberBuffers;
-
         float *data;
         int dataByteSize = sizeof(float);
         
-        if (numberBuffers == 2) {
-            data = (float *)(*p_bufferlist).mBuffers[0].mData;
+        if (numberBuffers > 0 && numberBuffers < 9) {
             dataByteSize = (*p_bufferlist).mBuffers[0].mDataByteSize;
-        } else {
+            
+            if (dataByteSize > 4000 && dataByteSize < 70000 && dataByteSize % sizeof(float) == 0) {
+                data = (float *)(*p_bufferlist).mBuffers[0].mData;
+
+                if (data[0] > 1.5 || data[0] < -1.5) {
+                    dataByteSize = sizeof(float);
+                    data = NULL;
+                }
+            }
+        }
+
+        if (data == NULL) {
             data = (float *)malloc(sizeof(float));
             data[0] = 0.0f;
         }
 
-        if(data != NULL){
-            [self.mitsuhaJelloView updateBuffer:data withLength:dataByteSize/sizeof(float)];
-        }
+        [self.mitsuhaJelloView updateBuffer:data withLength:dataByteSize/sizeof(float)];
     }
 }
 
