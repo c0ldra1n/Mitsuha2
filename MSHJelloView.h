@@ -17,8 +17,8 @@
 @property double gain;
 @property double limiter;
 
-@property UIColor *waveColor;
-@property UIColor *subwaveColor;
+@property (nonatomic, retain) UIColor *waveColor;
+@property (nonatomic, retain) UIColor *subwaveColor;
 
 @property NSUInteger numberOfPoints;
 

@@ -1,15 +1,12 @@
 
 include $(THEOS)/makefiles/common.mk
 
-GO_EASY_ON_ME=1
+export ARCHS = arm64
+export TARGET = iphone:11.2:11.2
 
-TWEAK_NAME = Mitsuha2
-$(TWEAK_NAME)_FILES = Tweak.xmi $(wildcard ./MSH*.*m*)
+SUBPROJECTS += Music Spotify Prefs
 
-$(TWEAK_NAME)_CFLAGS += -D THEOSBUILD=1 -D HBLogError=NSLog -w
-$(TWEAK_NAME)_CFLAGS += -fobjc-arc
-
-include $(THEOS_MAKE_PATH)/tweak.mk
+include $(THEOS_MAKE_PATH)/aggregate.mk
 
 after-install::
 	install.exec "killall -9 Music; open com.apple.Music"

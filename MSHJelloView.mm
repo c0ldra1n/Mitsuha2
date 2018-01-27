@@ -26,115 +26,112 @@ static CGPoint controlPointForPoints(CGPoint p1, CGPoint p2) {
     return controlPoint;
 }
 
+//Don't want to introduce dependencies for now. (no libcolorpicker :c)
+//Ugly but gets the job done (for now).
+static UIColor* settingsToUIColor(NSString *input) {
+    if ([input isEqualToString:@"#fc3059:0.1"]) {
+        return [UIColor colorWithRed:0.99 green:0.19 blue:0.35 alpha:0.1];
+    }
+    if ([input isEqualToString:@"#003059:0.1"]) {
+        return [UIColor colorWithRed:0.00 green:0.19 blue:0.35 alpha:0.1];
+    }
+    if ([input isEqualToString:@"#fcfcfc:0.2"]) {
+        return [UIColor colorWithRed:0.99 green:0.99 blue:0.99 alpha:0.2];
+    }
+    if ([input isEqualToString:@"#000000:0.05"]) {
+        return [UIColor colorWithRed:0.00 green:0.00 blue:0.00 alpha:0.05];
+    }
+    if ([input isEqualToString:@"#000000:0.9"]) {
+        return [UIColor colorWithRed:0.00 green:0.00 blue:0.00 alpha:0.9];
+    }
+    return [UIColor colorWithRed:0.00 green:0.00 blue:0.00 alpha:0.5];
+}
+
 @implementation MSHJelloViewConfig
 
 - (instancetype)initWithDictionary:(NSDictionary *)dict{
     self = [super init];
     
     if (self) {
-        
         _enabled = [([dict objectForKey:@"enabled"] ?: @(YES)) boolValue];
-        
         _enableDisplayLink = [([dict objectForKey:@"enableDisplayLink"] ?: @(YES)) boolValue];
-        
         _enableDynamicGain = [([dict objectForKey:@"enableDynamicGain"] ?: @(NO)) boolValue];
         _ignoreColorFlow = [([dict objectForKey:@"ignoreColorFlow"] ?: @(NO)) boolValue];
         _enableCircleArtwork = [([dict objectForKey:@"enableCircleArtwork"] ?: @(NO)) boolValue];
         
         UIColor * (*LCPParseColorString)(NSString *, NSString *) = (UIColor * (*)(NSString *, NSString *))dlsym(RTLD_DEFAULT, "LCPParseColorString");
         
-        NSLog(@"[Mitsuha]: Reading Preferences...:%@", dict);
-        
         if([dict objectForKey:@"waveColor"]){
-            
             if([[dict objectForKey:@"waveColor"] isKindOfClass:[UIColor class]]){
                 _waveColor = [dict objectForKey:@"waveColor"];
             }else if([[dict objectForKey:@"waveColor"] isKindOfClass:[NSString class]]){
                 _waveColor = LCPParseColorString([dict objectForKey:@"waveColor"], @"#000000:0.5");
             }
-            
         }else{
             _waveColor = [[UIColor blackColor] colorWithAlphaComponent:0.5];
-            
         }
         
         if([dict objectForKey:@"subwaveColor"]){
-            
             if([[dict objectForKey:@"subwaveColor"] isKindOfClass:[UIColor class]]){
                 _subwaveColor = [dict objectForKey:@"subwaveColor"];
             }else if([[dict objectForKey:@"subwaveColor"] isKindOfClass:[NSString class]]){
                 _subwaveColor = LCPParseColorString([dict objectForKey:@"subwaveColor"], @"#000000:0.5");
             }
-            
         }else{
             _subwaveColor = [[UIColor blackColor] colorWithAlphaComponent:0.5];
-            
         }
         
         _gain = [([dict objectForKey:@"gain"] ?: @(100)) doubleValue];
         _limiter = [([dict objectForKey:@"limiter"] ?: @(0)) doubleValue];
-        
         _numberOfPoints = [([dict objectForKey:@"numberOfPoints"] ?: @(8)) unsignedIntegerValue];
-        
         _waveOffset = [([dict objectForKey:@"waveOffset"] ?: @(0)) doubleValue];
-        
         _waveOffset = ([([dict objectForKey:@"negateOffset"] ?: @(false)) boolValue] ? _waveOffset * -1 : _waveOffset);
-        
     }
     
     return self;
 }
 
 +(MSHJelloViewConfig *)loadConfigForApplication:(NSString *)name{
+    NSMutableDictionary *prefs = [[NSMutableDictionary alloc] initWithContentsOfFile:MSHPreferencesFile];
     
-    NSMutableDictionary *prefs = [[NSMutableDictionary alloc] initWithContentsOfFile:MSHPreferencesDirectory];
-    
+    NSLog(@"[Mitsuha] Preferences: %@", prefs);
     if(!prefs){
         prefs = [@{} mutableCopy];
     }
     
     for (NSString *key in [prefs allKeys]) {
-        
         NSString *removedKey = [key stringByReplacingOccurrencesOfString:[NSString stringWithFormat:@"MSH%@", name] withString:@""];
-        
         NSString *loweredFirstChar = [[removedKey substringWithRange:NSMakeRange(0, 1)] lowercaseString];
-        
         NSString *newKey = [removedKey stringByReplacingCharactersInRange:NSMakeRange(0, 1) withString:loweredFirstChar];
-        
+
         [prefs setValue:[prefs objectForKey:key] forKey:newKey];
-        
     }
     
     if ([name isEqualToString:@"Music"]) {
-        
-        prefs[@"waveColor"] = [prefs objectForKey:@"waveColor"] ?: [UIColor colorWithWhite:1.0 alpha:0.5];
-        prefs[@"subwaveColor"] = [prefs objectForKey:@"subwaveColor"] ?: [UIColor colorWithWhite:1.0 alpha:0.5];
+        prefs[@"waveColor"] = settingsToUIColor([prefs objectForKey:@"waveColor"]) ?: settingsToUIColor(@"#fc3059:0.1");
         
         if ([(prefs[@"useDefaultColors"] ?: @(NO)) boolValue]) {
-            prefs[@"waveColor"] = [UIColor colorWithWhite:1.0 alpha:0.5];
-            prefs[@"subwaveColor"] = [UIColor colorWithWhite:1.0 alpha:0.5];
+            prefs[@"waveColor"] = settingsToUIColor(@"#fc3059:0.1");
         }
-        
+
+        prefs[@"subwaveColor"] = prefs[@"waveColor"];
         prefs[@"waveOffset"] = ([prefs objectForKey:@"waveOffset"] ?: @(0));
-        
     }
     
-    if([name isEqualToString:@"Spotify"]){
-        
-        prefs[@"waveColor"] = [prefs objectForKey:@"waveColor"] ?: [UIColor colorWithWhite:0.0 alpha:0.5];
-        prefs[@"subwaveColor"] = [prefs objectForKey:@"subwaveColor"] ?: [UIColor colorWithWhite:0.0 alpha:0.5];
+    if ([name isEqualToString:@"Spotify"]){
+        prefs[@"waveColor"] = settingsToUIColor([prefs objectForKey:@"waveColor"]) ?: settingsToUIColor(@"#fcfcfc:0.2");
         
         if ([(prefs[@"useDefaultColors"] ?: @(NO)) boolValue]) {
-            prefs[@"waveColor"] = [UIColor colorWithWhite:0.0 alpha:0.5];
-            prefs[@"subwaveColor"] = [UIColor colorWithWhite:0.0 alpha:0.5];
+            prefs[@"waveColor"] = settingsToUIColor(@"#fcfcfc:0.2");
         }
-        
-        prefs[@"waveOffset"] = ([prefs objectForKey:@"waveOffset"] ?: @(100));
 
+        prefs[@"subwaveColor"] = prefs[@"waveColor"];
+        prefs[@"waveOffset"] = ([prefs objectForKey:@"waveOffset"] ?: @(0));
     }
+    
+    NSLog(@"[Mitsuha] Preferences parsed: %@", prefs);
     
     return [[MSHJelloViewConfig alloc] initWithDictionary:prefs];
-    
 }
 
 @end
@@ -169,7 +166,6 @@ static CGPoint controlPointForPoints(CGPoint p1, CGPoint p2) {
 }
 
 -(void)initializeWaveLayers{
-    
     self.waveLayer = [MSHJelloLayer layer];
     self.subwaveLayer = [MSHJelloLayer layer];
     
@@ -188,11 +184,9 @@ static CGPoint controlPointForPoints(CGPoint p1, CGPoint p2) {
     }
     
     [self resetWaveLayers];
-    
 }
 
 -(void)resetWaveLayers{
-    
     if (!self.waveLayer || !self.subwaveLayer) {
         [self initializeWaveLayers];
     }
@@ -205,11 +199,9 @@ static CGPoint controlPointForPoints(CGPoint p1, CGPoint p2) {
     
     self.waveLayer.path = path;
     self.subwaveLayer.path = path;
-    
 }
 
 -(void)configureDisplayLink{
-    
     self.displayLink = [CADisplayLink displayLinkWithTarget:self selector:@selector(redraw)];
     
     [self.displayLink addToRunLoop:[NSRunLoop currentRunLoop] forMode:NSDefaultRunLoopMode];
@@ -218,42 +210,32 @@ static CGPoint controlPointForPoints(CGPoint p1, CGPoint p2) {
     
     self.waveLayer.shouldAnimate = true;
     self.subwaveLayer.shouldAnimate = true;
-    
 }
 
 -(void)updateWaveColor:(UIColor *)waveColor subwaveColor:(UIColor *)subwaveColor{
-    
     self.waveLayer.fillColor = waveColor.CGColor;
     self.subwaveLayer.fillColor = subwaveColor.CGColor;
-    
 }
 
 - (void)redraw{
-    
     CGPathRef path = [self createPathWithPoints:self.points
                                      pointCount:self.config.numberOfPoints
                                          inRect:self.bounds];
     self.waveLayer.path = path;
     
     dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(0.25 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
-        
         self.subwaveLayer.path = path;
-        
         CGPathRelease(path);
-        
     });
-    
 }
 
 
 - (CGPathRef)createPathWithPoints:(CGPoint *)points
                        pointCount:(NSUInteger)pointCount
                            inRect:(CGRect)rect {
-    
     UIBezierPath *path;
     
     if (pointCount > 0){
-        
         path = [UIBezierPath bezierPath];
         
         [path moveToPoint:CGPointMake(0, self.frame.size.height)];
@@ -263,42 +245,31 @@ static CGPoint controlPointForPoints(CGPoint p1, CGPoint p2) {
         [path addLineToPoint:p1];
         
         for (int i = 0; i<self.config.numberOfPoints; i++) {
-            
             CGPoint p2 = self.points[i];
-            
             CGPoint midPoint = midPointForPoints(p1, p2);
             
             [path addQuadCurveToPoint:midPoint controlPoint:controlPointForPoints(midPoint, p1)];
             [path addQuadCurveToPoint:p2 controlPoint:controlPointForPoints(midPoint, p2)];
             
             p1 = self.points[i];
-            
         }
         
         [path addLineToPoint:CGPointMake(self.frame.size.width, self.frame.size.height)];
-        
         [path addLineToPoint:CGPointMake(0, self.frame.size.height)];
-        
     }else{
-        
         float pixelFixer = self.bounds.size.width/self.config.numberOfPoints;
         
         if(cachedLength != self.config.numberOfPoints){
-            
             self.points = (CGPoint *)malloc(sizeof(CGPoint) * self.config.numberOfPoints);
             cachedLength = self.config.numberOfPoints;
             
             for (int i = 0; i < self.config.numberOfPoints; i++){
-                
                 self.points[i].x = i*pixelFixer;
-                self.points[i].y = self.bounds.size.height/2;
-                
+                self.points[i].y = self.config.waveOffset; //self.bounds.size.height/2;
             }
             
             self.points[self.config.numberOfPoints - 1].x = self.bounds.size.width;
-            
-            self.points[0].y = self.points[self.config.numberOfPoints - 1].y = self.bounds.size.height/2;
-            
+            self.points[0].y = self.points[self.config.numberOfPoints - 1].y = self.config.waveOffset; //self.bounds.size.height/2;
         }
         
         return [self createPathWithPoints:self.points
@@ -316,7 +287,6 @@ static CGPoint controlPointForPoints(CGPoint p1, CGPoint p2) {
 }
 
 - (void)setSampleData:(float *)data length:(int)length{
-    
     NSUInteger compressionRate = length/self.config.numberOfPoints;
     
     float pixelFixer = self.bounds.size.width/self.config.numberOfPoints;
@@ -329,38 +299,31 @@ static CGPoint controlPointForPoints(CGPoint p1, CGPoint p2) {
 #ifdef Sigma
     
     for (int i = 0; i<length; i++) {
-        
-        self.points[(int)(i/8)].y += data[i] ;
-                    
+        self.points[(int)(i/8)].y += data[i];
     }
     
 #else
     
     for (int i = 0; i < self.config.numberOfPoints; i++){
-
         self.points[i].x = i*pixelFixer;
-        
         double pureValue = data[i*compressionRate] * self.config.gain;
         
         if(self.config.limiter != 0){
             pureValue = (fabs(pureValue) < self.config.limiter ? pureValue : (pureValue < 0 ? -1*self.config.limiter : self.config.limiter));
         }
         
-        self.points[i].y = pureValue + self.bounds.size.height/2;
+        self.points[i].y = pureValue + self.config.waveOffset;// + self.bounds.size.height/2;
     }
     
 #endif
     
     self.points[self.config.numberOfPoints - 1].x = self.bounds.size.width;
-    
-    self.points[0].y = self.points[self.config.numberOfPoints - 1].y = self.bounds.size.height/2;
+    self.points[0].y = self.points[self.config.numberOfPoints - 1].y = self.config.waveOffset; //self.bounds.size.height/2;
     
     if(!self.config.enableDisplayLink){
         //  Do the animation here
         [self redraw];
     }
-    
 }
-
 
 @end

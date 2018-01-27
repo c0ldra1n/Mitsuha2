@@ -5,11 +5,9 @@
 //
 //
 
-#import <xctheos.h>
 #import "Tweak.h"
 
 static AudioBufferList *p_bufferlist;
-static AudioBufferList *p_zerolist;
 
 void init(MTAudioProcessingTapRef tap, void *clientInfo, void **tapStorageOut) {
     NSLog(@"[Mitsuha]: Initialising the Audio Tap Processor");
@@ -47,13 +45,11 @@ void process(MTAudioProcessingTapRef tap, CMItemCount numberFrames,
         NSLog(@"[Mitsuha]: Switching Buffer!(%p->%p)", p_bufferlist, bufferListInOut);
         p_bufferlist = bufferListInOut;
     }
-    
 }
 
 
 
 UIColor * colorWithMinimumSaturation(UIColor *self, double saturation){
-    
     if (!self)
         return nil;
     
@@ -64,13 +60,11 @@ UIColor * colorWithMinimumSaturation(UIColor *self, double saturation){
         return [UIColor colorWithHue:h saturation:saturation brightness:b alpha:a];
     
     return self;
-    
 }
 
 
 
 UIColor * averageColor(UIImage *image, double alpha){
-    
     //Work within the RGB colorspoace
     CGColorSpaceRef colorSpace = CGColorSpaceCreateDeviceRGB();
     unsigned char rgba[4];
@@ -83,10 +77,8 @@ UIColor * averageColor(UIImage *image, double alpha){
     
     //Check if image alpha is 0
     if (rgba[3] == 0) {
-        
         CGFloat imageAlpha = ((CGFloat)rgba[3])/255.0;
         CGFloat multiplier = imageAlpha/255.0;
-        
         UIColor *averageColor = [UIColor colorWithRed:((CGFloat)rgba[0])*multiplier green:((CGFloat)rgba[1])*multiplier blue:((CGFloat)rgba[2])*multiplier alpha:imageAlpha];
         
         //Improve color
@@ -94,10 +86,7 @@ UIColor * averageColor(UIImage *image, double alpha){
         
         //Return average color
         return averageColor;
-    }
-    
-    else {
-        
+    } else {
         //Get average
         UIColor *averageColor = [UIColor colorWithRed:((CGFloat)rgba[0])/255.0 green:((CGFloat)rgba[1])/255.0 blue:((CGFloat)rgba[2])/255.0 alpha:alpha];
         
@@ -111,24 +100,23 @@ UIColor * averageColor(UIImage *image, double alpha){
 
 static AVMutableAudioMix *audioMix;
 
-GROUP(MitsuhaInternals)
+%group MitsuhaInternals
 
-HOOK(MPAVController)
+%hook MPAVController
 
 -(void)_tracksDidChange:(id)arg1{
-    ORIG();
+    %orig;
     NSLog(@"[Mitsuha-2]: ITEM DID CHANGE");
     [self configureMitsuhaFilter];
 }
 -(void)_itemDidChange:(id)arg1{
-    ORIG();
+    %orig;
     NSLog(@"[Mitsuha-2]: ITEM DID CHANGE");
     [self configureMitsuhaFilter];
 }
 
-NEW()
+%new
 -(void)configureMitsuhaFilter{
-    
     NSLog(@"[Mitsuha]: Configuring Mitsuha Filter...");
     
     MPQueuePlayer *queuePlayer = self.avPlayer;
@@ -140,8 +128,7 @@ NEW()
     }
     
     AVMutableAudioMixInputParameters *inputParams = [AVMutableAudioMixInputParameters audioMixInputParametersWithTrack:queuePlayer.currentItem.tracks.firstObject.assetTrack];
-    
-    
+
     MTAudioProcessingTapCallbacks callbacks;
     callbacks.version = kMTAudioProcessingTapCallbacksVersion_0;
     callbacks.init = init;
@@ -152,7 +139,7 @@ NEW()
     
     static MTAudioProcessingTapRef tap;
     
-    if(tap == NULL){
+    if(tap == NULL) {
         OSStatus err = MTAudioProcessingTapCreate(kCFAllocatorDefault, &callbacks,
                                                   kMTAudioProcessingTapCreationFlag_PostEffects, &tap);
         if (err || !tap) {
@@ -165,117 +152,111 @@ NEW()
     inputParams.audioTapProcessor = tap;
     
     // Create a new AVAudioMix and assign it to our AVPlayerItem
-    
     audioMix = [AVMutableAudioMix audioMix];
-    
     audioMix.inputParameters = @[inputParams];
-    
     queuePlayer.currentItem.audioMix = audioMix;
-    
+
     NSLog(@"[Mitsuha]: audioMix %@", audioMix);
-    
 }
 
-END()
+%end
 
-END_GROUP()
+%end
 
-GROUP(MitsuhaVisuals)
+%group MitsuhaVisuals
 
-HOOK(MusicNowPlayingControlsViewController)
+%hook MusicNowPlayingControlsViewController
 
 -(void)viewDidLoad{
-    ORIG();
+    %orig;
     
     self.displayLink = [CADisplayLink displayLinkWithTarget:self selector:@selector(updateFrame:)];
     
     MSHJelloViewConfig *config = [MSHJelloViewConfig loadConfigForApplication:@"Music"];
-    config.waveColor = [UIColor colorWithRed:0.99 green:0.19 blue:0.35 alpha:0.1];
-    config.subwaveColor = [UIColor colorWithRed:0.99 green:0.19 blue:0.35 alpha:0.1];
-    config.waveOffset += 170;
-    config.limiter = 30;
-    float offset = config.waveOffset;
-    CGFloat height = CGRectGetHeight(self.view.bounds) - offset;
+    if (!config.enabled) return;
     
-    self.mitsuhaJelloView = [[MSHJelloView alloc] initWithFrame:CGRectMake(0, offset, self.view.bounds.size.width, height) andConfig:config];
+    config.waveOffset += 150;
+    //float offset = config.waveOffset;
+    CGFloat height = CGRectGetHeight(self.view.bounds)/2 + 5;
+    
+    self.mitsuhaJelloView = [[MSHJelloView alloc] initWithFrame:CGRectMake(0, 0, self.view.bounds.size.width, height) andConfig:config];
     
     [self.view addSubview:self.mitsuhaJelloView];
     [self.view sendSubviewToBack:self.mitsuhaJelloView];
-    
-    
 }
 
 -(void)viewWillAppear:(BOOL)animated{
-    
-    ORIG();
-    
+    %orig;
     self.mitsuhaJelloView.center = CGPointMake(self.mitsuhaJelloView.center.x, self.mitsuhaJelloView.frame.size.height + self.mitsuhaJelloView.config.waveOffset);
 }
 
 -(void)viewDidAppear:(BOOL)animated{
-    ORIG();
-    
+    %orig;
     [self.displayLink addToRunLoop:[NSRunLoop currentRunLoop] forMode:NSDefaultRunLoopMode];
     [self.displayLink setPaused:false];
-    
 }
 
 -(void)viewWillDisappear:(BOOL)animated{
-    
-    ORIG();
-    
+    %orig;
     [self.displayLink setPaused:YES];
     [self.displayLink removeFromRunLoop:[NSRunLoop currentRunLoop] forMode:NSDefaultRunLoopMode];
 }
 
-NEW()
+%new
 -(void)updateFrame:(CADisplayLink *)dlink{
-    
     if(p_bufferlist != NULL){
+        int numberBuffers = (*p_bufferlist).mNumberBuffers;
+        float *data = NULL;
+        int dataByteSize = sizeof(float);
         
-        float *data = (float *)(*p_bufferlist).mBuffers[0].mData;
-        
-        if(data != NULL){
-            
-            int dataByteSize = (*p_bufferlist).mBuffers[0].mDataByteSize;
-            
-            [self.mitsuhaJelloView updateBuffer:data withLength:dataByteSize/sizeof(float)];
+        if (numberBuffers > 0 && numberBuffers < 9) {
+            dataByteSize = (*p_bufferlist).mBuffers[0].mDataByteSize;
+
+            if (dataByteSize > 4000 && dataByteSize < 70000 && dataByteSize % sizeof(float) == 0) {
+                data = (float *)(*p_bufferlist).mBuffers[0].mData;
+
+                if (data[0] > 1.5 || data[0] < -1.5) {
+                    dataByteSize = sizeof(float);
+                    data = NULL;
+                }
+            }
         }
-        
+
+        if (data == NULL) {
+            data = (float *)malloc(sizeof(float));
+            data[0] = 0.0f;
+        }
+
+        [self.mitsuhaJelloView updateBuffer:data withLength:dataByteSize/sizeof(float)];
     }
-    
-    
-    
 }
 
-NEW()
+%new
 -(void)setMitsuhaJelloView:(MSHJelloView *)mitsuhaJelloView{
     objc_setAssociatedObject(self, @selector(mitsuhaJelloView), mitsuhaJelloView, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
 }
 
-NEW()
+%new
 -(MSHJelloView *)mitsuhaJelloView{
     return objc_getAssociatedObject(self, @selector(mitsuhaJelloView));
 }
 
-NEW()
+%new
 -(void)setDisplayLink:(CADisplayLink *)displayLink{
     objc_setAssociatedObject(self, @selector(displayLink), displayLink, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
 }
 
-NEW()
+%new
 -(CADisplayLink *)displayLink{
     return objc_getAssociatedObject(self, @selector(displayLink));
 }
 
+%end
 
-END()
+%end
 
-END_GROUP()
-
-CTOR(){
-    INIT(MitsuhaInternals);
+%ctor{
+    %init(MitsuhaInternals);
     //    INIT(MitsuhaVisuals, MusicNowPlayingControlsViewController = NSClassFromString(@"Music.NowPlayingControlsViewController"));
-    INIT(MitsuhaVisuals);
-    
+    %init(MitsuhaVisuals);
 }
