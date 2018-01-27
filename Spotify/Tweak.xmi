@@ -31,13 +31,16 @@ OSStatus hooked_AudioUnitRender(AudioUnit inUnit, AudioUnitRenderActionFlags *io
     
     currentBackgroundMusicVC = self;
     MSHJelloViewConfig *config = [MSHJelloViewConfig loadConfigForApplication:@"Spotify"];
+    if (!config.enabled) return;
+    
     config.waveOffset += 250;
     float offset = config.waveOffset;
     CGFloat height = CGRectGetHeight(self.view.bounds) - offset;
     
     self.mitsuhaJelloView = [[MSHJelloView alloc] initWithFrame:CGRectMake(0, offset, self.view.bounds.size.width, height) andConfig:config];
     [self.mitsuhaJelloView resetWaveLayers];
-    [self.mitsuhaJelloView.displayLink setFrameInterval:5];
+    self.mitsuhaJelloView.displayLink.preferredFramesPerSecond = 60;
+    //[self.mitsuhaJelloView.displayLink setFrameInterval:5];
     [self.view addSubview:self.mitsuhaJelloView];
     [[NSNotificationCenter defaultCenter] addObserver:self
                                              selector:@selector(updateVolume:)

@@ -1,11 +1,10 @@
 
 include $(THEOS)/makefiles/common.mk
 
-ARCHS = arm64
-TARGET = iphone:10.2:10.2
-GO_EASY_ON_ME=1
+export ARCHS = arm64
+export TARGET = iphone:11.2:11.2
 
-SUBPROJECTS += Music Spotify
+SUBPROJECTS += Music Spotify Prefs
 
 include $(THEOS_MAKE_PATH)/aggregate.mk
 

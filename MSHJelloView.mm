@@ -26,6 +26,27 @@ static CGPoint controlPointForPoints(CGPoint p1, CGPoint p2) {
     return controlPoint;
 }
 
+//Don't want to introduce dependencies for now. (no libcolorpicker :c)
+//Ugly but gets the job done (for now).
+static UIColor* settingsToUIColor(NSString *input) {
+    if ([input isEqualToString:@"#fc3059:0.1"]) {
+        return [UIColor colorWithRed:0.99 green:0.19 blue:0.35 alpha:0.1];
+    }
+    if ([input isEqualToString:@"#003059:0.1"]) {
+        return [UIColor colorWithRed:0.00 green:0.19 blue:0.35 alpha:0.1];
+    }
+    if ([input isEqualToString:@"#fcfcfc:0.2"]) {
+        return [UIColor colorWithRed:0.99 green:0.99 blue:0.99 alpha:0.2];
+    }
+    if ([input isEqualToString:@"#000000:0.05"]) {
+        return [UIColor colorWithRed:0.00 green:0.00 blue:0.00 alpha:0.05];
+    }
+    if ([input isEqualToString:@"#000000:0.9"]) {
+        return [UIColor colorWithRed:0.00 green:0.00 blue:0.00 alpha:0.9];
+    }
+    return [UIColor colorWithRed:0.00 green:0.00 blue:0.00 alpha:0.5];
+}
+
 @implementation MSHJelloViewConfig
 
 - (instancetype)initWithDictionary:(NSDictionary *)dict{
@@ -39,8 +60,6 @@ static CGPoint controlPointForPoints(CGPoint p1, CGPoint p2) {
         _enableCircleArtwork = [([dict objectForKey:@"enableCircleArtwork"] ?: @(NO)) boolValue];
         
         UIColor * (*LCPParseColorString)(NSString *, NSString *) = (UIColor * (*)(NSString *, NSString *))dlsym(RTLD_DEFAULT, "LCPParseColorString");
-        
-        NSLog(@"[Mitsuha]: Reading Preferences...:%@", dict);
         
         if([dict objectForKey:@"waveColor"]){
             if([[dict objectForKey:@"waveColor"] isKindOfClass:[UIColor class]]){
@@ -73,8 +92,9 @@ static CGPoint controlPointForPoints(CGPoint p1, CGPoint p2) {
 }
 
 +(MSHJelloViewConfig *)loadConfigForApplication:(NSString *)name{
-    NSMutableDictionary *prefs = [[NSMutableDictionary alloc] initWithContentsOfFile:MSHPreferencesDirectory];
+    NSMutableDictionary *prefs = [[NSMutableDictionary alloc] initWithContentsOfFile:MSHPreferencesFile];
     
+    NSLog(@"[Mitsuha] Preferences: %@", prefs);
     if(!prefs){
         prefs = [@{} mutableCopy];
     }
@@ -88,28 +108,28 @@ static CGPoint controlPointForPoints(CGPoint p1, CGPoint p2) {
     }
     
     if ([name isEqualToString:@"Music"]) {
-        prefs[@"waveColor"] = [prefs objectForKey:@"waveColor"] ?: [UIColor colorWithRed:0.99 green:0.19 blue:0.35 alpha:0.1];
-        prefs[@"subwaveColor"] = [prefs objectForKey:@"subwaveColor"] ?: [UIColor colorWithRed:0.99 green:0.19 blue:0.35 alpha:0.1];
+        prefs[@"waveColor"] = settingsToUIColor([prefs objectForKey:@"waveColor"]) ?: settingsToUIColor(@"#fc3059:0.1");
         
         if ([(prefs[@"useDefaultColors"] ?: @(NO)) boolValue]) {
-            prefs[@"waveColor"] = [UIColor colorWithRed:0.99 green:0.19 blue:0.35 alpha:0.1];
-            prefs[@"subwaveColor"] = [UIColor colorWithRed:0.99 green:0.19 blue:0.35 alpha:0.1];
+            prefs[@"waveColor"] = settingsToUIColor(@"#fc3059:0.1");
         }
-        
+
+        prefs[@"subwaveColor"] = prefs[@"waveColor"];
         prefs[@"waveOffset"] = ([prefs objectForKey:@"waveOffset"] ?: @(0));
     }
     
-    if([name isEqualToString:@"Spotify"]){
-        prefs[@"waveColor"] = [prefs objectForKey:@"waveColor"] ?: [UIColor colorWithRed:0.99 green:0.99 blue:0.99 alpha:0.2];
-        prefs[@"subwaveColor"] = [prefs objectForKey:@"subwaveColor"] ?: [UIColor colorWithRed:0.99 green:0.99 blue:0.99 alpha:0.2];
+    if ([name isEqualToString:@"Spotify"]){
+        prefs[@"waveColor"] = settingsToUIColor([prefs objectForKey:@"waveColor"]) ?: settingsToUIColor(@"#fcfcfc:0.2");
         
         if ([(prefs[@"useDefaultColors"] ?: @(NO)) boolValue]) {
-            prefs[@"waveColor"] = [UIColor colorWithRed:0.99 green:0.99 blue:0.99 alpha:0.2];
-            prefs[@"subwaveColor"] = [UIColor colorWithRed:0.99 green:0.99 blue:0.99 alpha:0.2];
+            prefs[@"waveColor"] = settingsToUIColor(@"#fcfcfc:0.2");
         }
-        
+
+        prefs[@"subwaveColor"] = prefs[@"waveColor"];
         prefs[@"waveOffset"] = ([prefs objectForKey:@"waveOffset"] ?: @(0));
     }
+    
+    NSLog(@"[Mitsuha] Preferences parsed: %@", prefs);
     
     return [[MSHJelloViewConfig alloc] initWithDictionary:prefs];
 }

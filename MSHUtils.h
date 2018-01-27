@@ -12,5 +12,5 @@
 #define MSHColorFlowMusicEnabled MSHookIvar<BOOL>([%c(CFWPrefsManager) sharedInstance], "_musicEnabled")
 #define MSHColorFlowSpotifyEnabled MSHookIvar<BOOL>([%c(CFWPrefsManager) sharedInstance], "_spotifyEnabled")
 #define MSHCustomCoverInstalled [%c(CustomCoverAPI) class]
-#define MSHPreferencesDirectory @"/var/mobile/Library/Preferences/io.c0ldra1n.mitsuha-prefs.plist"
-#define MSHDatastreamPath @"/Library/Application\ Support/Mitsuha/io.c0ldra1n.mitsuha.datastream"
+#define MSHPreferencesFile @"/var/mobile/Library/Preferences/io.c0ldra1n.mitsuhaxi-prefs.plist"
+#define MSHDatastreamPath @"/Library/Application\ Support/Mitsuha/io.c0ldra1n.mitsuhaxi.datastream"

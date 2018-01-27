@@ -8,7 +8,6 @@
 #import "Tweak.h"
 
 static AudioBufferList *p_bufferlist;
-static AudioBufferList *p_zerolist;
 
 void init(MTAudioProcessingTapRef tap, void *clientInfo, void **tapStorageOut) {
     NSLog(@"[Mitsuha]: Initialising the Audio Tap Processor");
@@ -174,8 +173,10 @@ static AVMutableAudioMix *audioMix;
     self.displayLink = [CADisplayLink displayLinkWithTarget:self selector:@selector(updateFrame:)];
     
     MSHJelloViewConfig *config = [MSHJelloViewConfig loadConfigForApplication:@"Music"];
+    if (!config.enabled) return;
+    
     config.waveOffset += 150;
-    float offset = config.waveOffset;
+    //float offset = config.waveOffset;
     CGFloat height = CGRectGetHeight(self.view.bounds)/2 + 5;
     
     self.mitsuhaJelloView = [[MSHJelloView alloc] initWithFrame:CGRectMake(0, 0, self.view.bounds.size.width, height) andConfig:config];
@@ -205,12 +206,12 @@ static AVMutableAudioMix *audioMix;
 -(void)updateFrame:(CADisplayLink *)dlink{
     if(p_bufferlist != NULL){
         int numberBuffers = (*p_bufferlist).mNumberBuffers;
-        float *data;
+        float *data = NULL;
         int dataByteSize = sizeof(float);
         
         if (numberBuffers > 0 && numberBuffers < 9) {
             dataByteSize = (*p_bufferlist).mBuffers[0].mDataByteSize;
-            
+
             if (dataByteSize > 4000 && dataByteSize < 70000 && dataByteSize % sizeof(float) == 0) {
                 data = (float *)(*p_bufferlist).mBuffers[0].mData;
 
